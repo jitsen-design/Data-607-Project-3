@@ -4,14 +4,16 @@ library(xml2)
 
 page_result_start <- 10 # starting page 
 page_result_end <- 500 # last page results
-page_results <- seq(from = page_result_start, to = page_result_end, by = 10)
+page_results <- c(0,seq(from = page_result_start, to = page_result_end, by = 10))
 
 full_df <- data.frame()
 for(i in seq_along(page_results)) {
     
     first_page_url <- "https://www.indeed.com/jobs?q=data+scientist"
     url <- paste0(first_page_url, "&start=", page_results[i])
-    page <- xml2::read_html(first_page_url)
+    
+    page <- xml2::read_html(url)
+    
     # Sys.sleep pauses R for two seconds before it resumes
     # Putting it there avoids error messages such as "Error in open.connection(con, "rb") : Timeout was reached"
     Sys.sleep(1)
@@ -58,5 +60,5 @@ for(i in seq_along(page_results)) {
     df <- data.frame(job_title, company_name, job_location, job_description)
     full_df <- rbind(full_df, df)
 }
-head(full_df)
-write.csv(full_df, "500_jobs.csv")
+full_df <- unique(full_df)
+write.csv(full_df, "all_jobs.csv")
